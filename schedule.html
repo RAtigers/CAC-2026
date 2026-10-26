@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>schedUle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light dark;
+    --paper: #F4F6F8; --card: #FFFFFF; --ink: #14263A; --ink-soft: #5B6B7C;
+    --rule: #D9E0E7; --rule-soft: #E8EDF1; --shadow: rgba(20, 38, 58, 0.08);
+    --math: #E0312B; --science: #00845A; --cs: #0B63C4; --engineering: #E8760C;
+    --health: #C2266B; --business: #8A6A00; --arts: #00A2AE; --social: #6C7A1C;
+    --english: #7038A0; --language: #8B4A2B;
+    --ok: #00845A; --blocked: #E0312B;
+    --sans: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --cond: 'Barlow Condensed', 'Barlow', 'Arial Narrow', Helvetica, sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #101A23; --card: #18242F; --ink: #E4EBF1; --ink-soft: #94A6B5;
+      --rule: #2A3A48; --rule-soft: #22303C; --shadow: rgba(0, 0, 0, 0.4);
+      --math: #FF6B60; --science: #34C48C; --cs: #5AA6F0; --engineering: #FFA04D;
+      --health: #F06CA0; --business: #D4AC2B; --arts: #3FD0DB; --social: #A8BC42;
+      --english: #B57BE0; --language: #C98862; --ok: #34C48C; --blocked: #FF6B60;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #101A23; --card: #18242F; --ink: #E4EBF1; --ink-soft: #94A6B5;
+    --rule: #2A3A48; --rule-soft: #22303C; --shadow: rgba(0, 0, 0, 0.4);
+    --math: #FF6B60; --science: #34C48C; --cs: #5AA6F0; --engineering: #FFA04D;
+    --health: #F06CA0; --business: #D4AC2B; --arts: #3FD0DB; --social: #A8BC42;
+    --english: #B57BE0; --language: #C98862; --ok: #34C48C; --blocked: #FF6B60;
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header.masthead { padding: 40px 0 28px; border-bottom: 2px solid var(--ink); margin-bottom: 24px; }
+  .masthead h1 { font-family: var(--cond); font-size: clamp(38px, 7vw, 60px); font-weight: 700; letter-spacing: 0.01em; line-height: 0.98; margin: 0 0 10px; }
+  .masthead p { margin: 0; max-width: 62ch; color: var(--ink-soft); font-size: 16px; }
+  .pun-u { color: var(--cs); }
+  .masthead p.tagline { font-family: var(--cond); font-size: clamp(18px, 3vw, 24px); font-weight: 600; color: var(--ink); margin: 0 0 12px; letter-spacing: 0.02em; }
+  .back-link { display: inline-block; margin-bottom: 14px; }
+
+  .page-link { color: var(--cs); font-weight: 600; font-size: 14px; text-decoration: none; }
+  .page-link:hover { text-decoration: underline; }
+  .catalog-nav-card {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+    padding: 18px 22px; margin-bottom: 22px; box-shadow: 0 1px 2px var(--shadow);
+  }
+  .catalog-nav-card strong { font-family: var(--cond); font-size: 18px; font-weight: 700; letter-spacing: 0.01em; }
+  .catalog-nav-card .panel-note { margin: 4px 0 0; }
+  .catalog-nav-card .btn { padding: 11px 22px; font-size: 14px; white-space: nowrap; }
+
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px 24px; background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 22px; margin-bottom: 22px; box-shadow: 0 1px 2px var(--shadow); }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  select, input[type="range"], input[type="text"] { font-family: var(--sans); font-size: 15px; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px; width: 100%; }
+  input[type="range"] { padding: 0; height: 32px; accent-color: var(--cs); }
+  select:focus-visible, input:focus-visible, button:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--cs); outline-offset: 2px; }
+  .slider-row { display: flex; align-items: center; gap: 12px; }
+  .slider-val { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 1.4em; }
+  .check-row { display: flex; align-items: center; gap: 9px; font-size: 14px; }
+  .check-row input { accent-color: var(--cs); width: 17px; height: 17px; }
+
+  details.picker { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; margin-bottom: 18px; box-shadow: 0 1px 2px var(--shadow); }
+  details.picker summary { cursor: pointer; padding: 16px 22px; font-weight: 600; font-size: 15px; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+  details.picker summary::-webkit-details-marker { display: none; }
+  .picker-count { font-weight: 500; color: var(--ink-soft); font-size: 14px; }
+  .picker-body { padding: 0 22px 20px; border-top: 1px solid var(--rule-soft); padding-top: 18px; }
+  .panel-note { font-size: 13px; color: var(--ink-soft); margin: 0 0 16px; max-width: 68ch; }
+
+  .catalog-page-body { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 24px 26px; box-shadow: 0 1px 2px var(--shadow); margin-bottom: 40px; }
+  .catalog-stat { font-size: 13px; color: var(--ink-soft); margin: 2px 0 22px; }
+
+  .subject-block { margin-bottom: 18px; }
+  .subject-block:last-child { margin-bottom: 0; }
+  .subject-name { font-family: var(--cond); font-size: 17px; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 8px; padding-left: 10px; border-left: 4px solid currentColor; }
+  .course-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 4px 18px; }
+  .course-check { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; padding: 0; cursor: pointer; }
+  .course-check input { accent-color: var(--cs); margin-top: 3px; flex-shrink: 0; }
+  .completed-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+  .completed-row .course-check { flex: 1; min-width: 0; }
+  .completed-grade-select { font-size: 11px; padding: 2px 4px; width: auto; max-width: 102px; flex-shrink: 0; border-radius: 4px; }
+  .picker-actions { margin-top: 14px; display: flex; gap: 18px; flex-wrap: wrap; }
+  .btn-link { background: none; border: none; color: var(--cs); font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; padding: 4px 0; text-decoration: underline; }
+  .btn-danger { color: var(--blocked); }
+
+  .catalog-rows { display: flex; flex-direction: column; gap: 2px; }
+  .catalog-row { display: flex; align-items: center; gap: 10px; padding: 2px 0; }
+  .catalog-row .course-check { flex: 1; min-width: 0; }
+  .row-edit { background: none; border: 1px solid var(--rule); border-radius: 6px; color: var(--ink-soft); font-size: 12px; padding: 3px 9px; cursor: pointer; line-height: 1.5; flex-shrink: 0; }
+  .row-edit:hover { border-color: var(--cs); color: var(--cs); }
+
+  .course-editor { margin-top: 18px; padding: 18px 20px; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); }
+  .editor-head { font-family: var(--cond); font-size: 17px; font-weight: 700; margin-bottom: 14px; }
+  .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 14px; }
+  .prereq-box { max-height: 190px; overflow-y: auto; border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 3px 14px; background: var(--card); }
+  .editor-actions { display: flex; align-items: center; gap: 18px; margin-top: 14px; flex-wrap: wrap; }
+  .btn-small { padding: 9px 20px; font-size: 14px; }
+
+  .btn { font-size: 16px; font-weight: 600; border: none; border-radius: 999px; padding: 13px 28px; cursor: pointer; font-family: var(--sans); }
+  .btn-primary { background: var(--cs); color: #fff; }
+  .btn-secondary { background: transparent; color: var(--ink); border: 1px solid var(--rule); }
+  .btn-secondary:hover { border-color: var(--cs); }
+
+  .verdict { border-radius: 10px; padding: 22px 24px; margin-bottom: 20px; border-left: 6px solid var(--ok); background: var(--card); border-top: 1px solid var(--rule); border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); box-shadow: 0 1px 2px var(--shadow); }
+  .verdict.is-blocked { border-left-color: var(--blocked); }
+  .verdict.is-tight { border-left-color: var(--engineering); }
+  .verdict h2 { font-family: var(--cond); font-size: 27px; font-weight: 700; margin: 0 0 8px; letter-spacing: 0.01em; }
+  .verdict p { margin: 0 0 10px; max-width: 74ch; }
+  .verdict p:last-child { margin-bottom: 0; }
+  .verdict ul { margin: 10px 0 0; padding-left: 20px; max-width: 74ch; }
+  .verdict li { margin-bottom: 7px; }
+  .chain { font-family: var(--cond); font-size: 16px; font-weight: 600; letter-spacing: 0.01em; }
+
+  .edit-banner { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--cs); border-radius: 8px; padding: 12px 18px; margin-bottom: 20px; font-size: 14px; color: var(--ink-soft); }
+
+  .map-section { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; box-shadow: 0 1px 2px var(--shadow); margin-bottom: 24px; }
+  .map-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; padding: 20px 22px 12px; }
+  .map-head h3 { font-family: var(--cond); font-size: 22px; font-weight: 700; margin: 0; letter-spacing: 0.02em; }
+  .map-hint { font-size: 13px; color: var(--ink-soft); }
+  .map-scroll { overflow-x: auto; padding: 0 22px 8px; }
+  svg.map { display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 12px 22px 20px; border-top: 1px solid var(--rule-soft); margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft); }
+  .legend-swatch { width: 16px; height: 4px; border-radius: 2px; }
+
+  .node-box { cursor: pointer; }
+  .node-box rect { transition: opacity 0.12s ease; }
+  .node-label { font-family: var(--cond); font-size: 13px; font-weight: 600; fill: #fff; pointer-events: none; letter-spacing: 0.015em; }
+  .node-sub { font-family: var(--sans); font-size: 9.5px; fill: rgba(255,255,255,0.75); pointer-events: none; }
+  .is-dim { opacity: 0.16; }
+  .edge { fill: none; stroke-width: 2; transition: opacity 0.12s ease; }
+  .col-label { font-family: var(--cond); font-size: 15px; font-weight: 700; fill: var(--ink-soft); letter-spacing: 0.05em; }
+  .col-rule { stroke: var(--rule); stroke-width: 1; }
+
+  .years-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+  .years-head h3 { font-family: var(--cond); font-size: 22px; font-weight: 700; margin: 0; letter-spacing: 0.02em; }
+  .add-course-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .add-course-row select { width: auto; min-width: 190px; }
+  .add-course-row .btn { padding: 9px 18px; font-size: 14px; }
+
+  .years { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 22px; }
+  .year-card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 18px 18px 10px; box-shadow: 0 1px 2px var(--shadow); }
+  .year-card h4 { font-family: var(--cond); font-size: 20px; font-weight: 700; margin: 0 0 4px; letter-spacing: 0.02em; }
+  .year-meta { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 10px; }
+
+  .year-list { list-style: none; margin: 0; padding: 0; min-height: 44px; border-radius: 6px; transition: background 0.1s ease; }
+  .year-list.drag-over { background: var(--rule-soft); }
+  .year-empty-row { color: var(--ink-soft); font-size: 13px; font-style: italic; padding: 10px 4px; }
+
+  .course-row { display: flex; align-items: center; gap: 7px; padding: 7px 6px; border-bottom: 1px solid var(--rule-soft); font-size: 13.5px; cursor: grab; border-radius: 4px; }
+  .course-row:last-child { border-bottom: none; }
+  .course-row.is-dragging { opacity: 0.4; }
+  .course-row.is-violation { background: rgba(224, 49, 43, 0.08); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .course-row-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .opt-tag { font-size: 10.5px; color: var(--ink-soft); font-weight: 600; margin-left: 6px; }
+  .warn-icon { width: 15px; height: 15px; border-radius: 50%; background: var(--blocked); color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; border: none; padding: 0; }
+  .warn-icon--ignored { background: var(--ink-soft); }
+  .row-moves { display: flex; gap: 2px; flex-shrink: 0; }
+  .row-move, .row-remove { background: none; border: 1px solid var(--rule); border-radius: 5px; color: var(--ink-soft); font-size: 10px; width: 21px; height: 21px; cursor: pointer; line-height: 1; flex-shrink: 0; }
+  .row-move:hover:not(:disabled) { border-color: var(--cs); color: var(--cs); }
+  .row-move:disabled { opacity: 0.3; cursor: default; }
+  .row-remove:hover { border-color: var(--blocked); color: var(--blocked); }
+  .row-assign { font-size: 11.5px; padding: 3px 5px; flex-shrink: 0; width: auto; }
+
+  .panel { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 20px 22px; margin-bottom: 16px; }
+  .panel h3 { margin: 0 0 6px; font-size: 14px; font-weight: 600; color: var(--ink-soft); }
+
+  .career-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-top: 14px; }
+  .career-info-label { font-size: 12px; font-weight: 600; color: var(--ink-soft); margin: 0 0 8px; }
+  .career-info-list { list-style: none; margin: 0; padding: 0; font-size: 13.5px; }
+  .career-info-list li { padding: 2px 0; }
+  .career-info-text { font-size: 13.5px; color: var(--ink); margin: 0; line-height: 1.5; }
+  .career-info-caveat { margin: 16px 0 0; }
+
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===================== PAGE: PLAN ===================== -->
+  <section id="page-plan">
+    <header class="masthead">
+      <h1>sched<span class="pun-u">U</span>le</h1>
+      <p class="tagline">A personalized course planner made for <span class="pun-u">U</span></p>
+      <p>Pick a career. schedUle works backward through every prerequisite chain in your school's course catalog and tells you whether you can still get there, then lets you edit the plan manually, so it matches what you'll actually take.</p>
+    </header>
+    <div class="catalog-nav-card">
+      <div>
+        <strong>Check off what your school offers</strong>
+        <p class="panel-note" id="catalog-summary-note">Loading your catalog…</p>
+      </div>
+      <a href="#catalog" class="btn btn-secondary">Open the catalog →</a>
+    </div>
+
+    <div class="controls">
+      <div class="field">
+        <label for="career">Where you're headed</label>
+        <select id="career"></select>
+      </div>
+      <div class="field">
+        <label for="grade">Grade you're entering</label>
+        <select id="grade">
+          <option value="9">9th grade</option>
+          <option value="10">10th grade</option>
+          <option value="11" selected>11th grade</option>
+          <option value="12">12th grade</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="slots">Pathway courses per year</label>
+        <div class="slider-row">
+          <input type="range" id="slots" min="1" max="6" value="3">
+          <span class="slider-val" id="slots-val">3</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Options</label>
+        <label class="check-row">
+          <input type="checkbox" id="include-rec">
+          Include recommended courses, not just required
+        </label>
+      </div>
+    </div>
+
+    <details class="picker">
+      <summary>
+        <span>Courses you've already finished</span>
+        <span class="picker-count" id="picker-count">none selected</span>
+      </summary>
+      <div class="picker-body">
+        <p class="panel-note">Check anything you've completed, including courses taken before 9th grade for acceleration — tag those as "8th or earlier" so your record stays accurate. Either way, a finished course counts the same toward the plan.</p>
+        <div id="picker-body"></div>
+      </div>
+    </details>
+
+    <div class="verdict" id="verdict"></div>
+
+    <div class="edit-banner" id="edit-banner" hidden>
+      <span id="edit-banner-text"></span>
+      <button type="button" class="btn-link" id="btn-reset-timeline">Reset to computed plan</button>
+    </div>
+
+    <div class="map-section">
+      <div class="map-head">
+        <h3>Your route</h3>
+        <span class="map-hint">Tap a course to trace its chain. Edit the years below and the map follows.</span>
+      </div>
+      <div class="map-scroll"><svg class="map" id="map" role="img" aria-label="Course prerequisite map by school year"></svg></div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <div class="years-head">
+      <h3>Your four-year plan</h3>
+      <div class="add-course-row">
+        <select id="add-course-select" aria-label="Course to add"></select>
+        <select id="add-course-grade" aria-label="Grade to add it in"></select>
+        <button type="button" class="btn btn-secondary" id="btn-add-to-plan">Add to plan</button>
+      </div>
+    </div>
+
+    <div class="years" id="years"></div>
+
+    <div class="panel" id="unscheduled-panel" hidden>
+      <h3>Not yet on the timeline</h3>
+      <ul class="year-list" id="unscheduled-list"></ul>
+    </div>
+
+    <div class="panel">
+      <h3 id="career-info-heading">Where this can lead</h3>
+      <div class="career-info-grid">
+        <div>
+          <p class="career-info-label">Example jobs</p>
+          <ul class="career-info-list" id="career-info-jobs"></ul>
+        </div>
+        <div>
+          <p class="career-info-label">Typical schooling</p>
+          <p class="career-info-text" id="career-info-schooling"></p>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===================== PAGE: CATALOG ===================== -->
+  <section id="page-catalog" hidden>
+    <header class="masthead">
+      <a href="#" class="page-link back-link">← Back to your plan</a>
+      <h1>School Catalog</h1>
+      <p>Uncheck anything your school doesn't actually offer, edit a course whose rules work differently there, or add one that's missing. Your plan recalculates the moment you go back.</p>
+    </header>
+
+    <div class="catalog-page-body">
+      <p class="catalog-stat" id="catalog-count"></p>
+      <div id="catalog-list"></div>
+      <div class="picker-actions">
+        <button type="button" class="btn-link" id="btn-add-course">+ Add a course</button>
+        <button type="button" class="btn-link btn-danger" id="btn-reset-catalog">Reset to default catalog</button>
+      </div>
+      <div class="course-editor" id="course-editor" hidden>
+        <div class="editor-head">Editing: <span id="editor-title"></span></div>
+        <div class="editor-grid">
+          <div class="field"><label for="editor-name">Name</label><input type="text" id="editor-name" placeholder="Course name"></div>
+          <div class="field"><label for="editor-subject">Subject</label><select id="editor-subject"></select></div>
+          <div class="field"><label for="editor-grade">First offered</label><select id="editor-grade"></select></div>
+        </div>
+        <div class="field">
+          <label>Prerequisites</label>
+          <div class="prereq-box" id="editor-prereqs"></div>
+        </div>
+        <div class="editor-actions">
+          <button type="button" class="btn btn-primary btn-small" id="editor-save">Save course</button>
+          <button type="button" class="btn-link" id="editor-cancel">Cancel</button>
+          <button type="button" class="btn-link btn-danger" id="editor-delete" hidden>Remove this course</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  
+
+  const SUBJECTS = {
+    math:        { name: 'Mathematics',       color: 'var(--math)' },
+    science:     { name: 'Science',           color: 'var(--science)' },
+    cs:          { name: 'Computer Science',  color: 'var(--cs)' },
+    engineering: { name: 'Engineering',       color: 'var(--engineering)' },
+    health:      { name: 'Health Sciences',   color: 'var(--health)' },
+    business:    { name: 'Business',          color: 'var(--business)' },
+    arts:        { name: 'Visual Arts',       color: 'var(--arts)' },
+    social:      { name: 'Social Sciences',   color: 'var(--social)' },
+    english:     { name: 'English Electives', color: 'var(--english)' },
+    language:    { name: 'World Languages',   color: 'var(--language)' },
+  };
+
+  const DEFAULT_COURSES = {
+    alg1:      { name: 'Algebra 1',              subject: 'math', minGrade: 9,  prereqs: [] },
+    geom:      { name: 'Geometry',               subject: 'math', minGrade: 9,  prereqs: ['alg1'] },
+    alg2:      { name: 'Algebra 2',              subject: 'math', minGrade: 10, prereqs: ['geom'] },
+    precalc:   { name: 'Precalculus',            subject: 'math', minGrade: 11, prereqs: ['alg2'] },
+    stats:     { name: 'AP Statistics',          subject: 'math', minGrade: 11, prereqs: ['alg2'] },
+    calcab:    { name: 'AP Calculus AB',         subject: 'math', minGrade: 11, prereqs: ['precalc'] },
+    calcbc:    { name: 'AP Calculus BC',         subject: 'math', minGrade: 12, prereqs: ['calcab'] },
+
+    bio:       { name: 'Biology',                subject: 'science', minGrade: 9,  prereqs: [] },
+    chem:      { name: 'Chemistry',              subject: 'science', minGrade: 10, prereqs: ['bio', 'alg1'] },
+    physics:   { name: 'Physics',                subject: 'science', minGrade: 11, prereqs: ['alg2'] },
+    anatomy:   { name: 'Anatomy & Physiology',   subject: 'science', minGrade: 11, prereqs: ['bio', 'chem'] },
+    apbio:     { name: 'AP Biology',             subject: 'science', minGrade: 11, prereqs: ['bio', 'chem'] },
+    apchem:    { name: 'AP Chemistry',           subject: 'science', minGrade: 11, prereqs: ['chem', 'alg2'] },
+    apphys1:   { name: 'AP Physics 1',           subject: 'science', minGrade: 11, prereqs: ['alg2'] },
+    apphysc:   { name: 'AP Physics C',           subject: 'science', minGrade: 12, prereqs: ['apphys1', 'precalc'] },
+    envsci:    { name: 'AP Environmental Sci',   subject: 'science', minGrade: 11, prereqs: ['bio'] },
+
+    introcs:   { name: 'Intro to Comp Science',  subject: 'cs', minGrade: 9,  prereqs: [] },
+    apcsp:     { name: 'AP CS Principles',       subject: 'cs', minGrade: 10, prereqs: ['introcs'] },
+    apcsa:     { name: 'AP Computer Science A',  subject: 'cs', minGrade: 11, prereqs: ['apcsp', 'alg2'] },
+    datastruct:{ name: 'Data Structures',        subject: 'cs', minGrade: 12, prereqs: ['apcsa'] },
+    webdev:    { name: 'Web Development',        subject: 'cs', minGrade: 10, prereqs: ['introcs'] },
+    cyber:     { name: 'Cybersecurity',          subject: 'cs', minGrade: 11, prereqs: ['introcs'] },
+
+    ied:       { name: 'Intro to Eng Design',    subject: 'engineering', minGrade: 9,  prereqs: [] },
+    poe:       { name: 'Principles of Eng',      subject: 'engineering', minGrade: 10, prereqs: ['ied', 'alg1'] },
+    digelec:   { name: 'Digital Electronics',    subject: 'engineering', minGrade: 11, prereqs: ['poe', 'alg2'] },
+    cea:       { name: 'Civil Eng & Arch',       subject: 'engineering', minGrade: 11, prereqs: ['poe'] },
+    edd:       { name: 'Eng Design & Dev',       subject: 'engineering', minGrade: 12, prereqs: ['poe'] },
+
+    healthsci: { name: 'Intro to Health Sci',    subject: 'health', minGrade: 9,  prereqs: [] },
+    medterm:   { name: 'Medical Terminology',    subject: 'health', minGrade: 10, prereqs: ['healthsci'] },
+    sportsmed: { name: 'Sports Medicine',        subject: 'health', minGrade: 11, prereqs: ['healthsci', 'bio'] },
+    nutrition: { name: 'Nutrition Science',      subject: 'health', minGrade: 10, prereqs: ['bio'] },
+    cna:       { name: 'CNA Certification Prep', subject: 'health', minGrade: 12, prereqs: ['medterm', 'anatomy'] },
+
+    introbus:  { name: 'Intro to Business',      subject: 'business', minGrade: 9,  prereqs: [] },
+    acct1:     { name: 'Accounting 1',           subject: 'business', minGrade: 10, prereqs: ['introbus', 'alg1'] },
+    acct2:     { name: 'Accounting 2',           subject: 'business', minGrade: 11, prereqs: ['acct1'] },
+    apmicro:   { name: 'AP Microeconomics',      subject: 'business', minGrade: 11, prereqs: ['alg2'] },
+    apmacro:   { name: 'AP Macroeconomics',      subject: 'business', minGrade: 12, prereqs: ['apmicro'] },
+    marketing: { name: 'Marketing',              subject: 'business', minGrade: 10, prereqs: ['introbus'] },
+    perfin:    { name: 'Personal Finance',       subject: 'business', minGrade: 10, prereqs: [] },
+
+    art1:      { name: 'Art Foundations',        subject: 'arts', minGrade: 9,  prereqs: [] },
+    art2:      { name: 'Drawing & Painting',     subject: 'arts', minGrade: 10, prereqs: ['art1'] },
+    digdesign: { name: 'Digital Design',         subject: 'arts', minGrade: 10, prereqs: ['art1'] },
+    photo:     { name: 'Photography',            subject: 'arts', minGrade: 10, prereqs: ['art1'] },
+    apart:     { name: 'AP Studio Art',          subject: 'arts', minGrade: 12, prereqs: ['art2', 'digdesign'] },
+
+    psych:     { name: 'Psychology',             subject: 'social', minGrade: 10, prereqs: [] },
+    appsych:   { name: 'AP Psychology',          subject: 'social', minGrade: 11, prereqs: ['psych'] },
+    sociology: { name: 'Sociology',              subject: 'social', minGrade: 11, prereqs: [] },
+    apgov:     { name: 'AP Government',          subject: 'social', minGrade: 11, prereqs: [] },
+
+    speech:    { name: 'Public Speaking',        subject: 'english', minGrade: 10, prereqs: [] },
+    journalism:{ name: 'Journalism',             subject: 'english', minGrade: 10, prereqs: [] },
+    aplang:    { name: 'AP English Language',    subject: 'english', minGrade: 11, prereqs: [] },
+    aplit:     { name: 'AP English Literature',  subject: 'english', minGrade: 12, prereqs: ['aplang'] },
+
+    span1:     { name: 'Spanish 1',              subject: 'language', minGrade: 9,  prereqs: [] },
+    span2:     { name: 'Spanish 2',              subject: 'language', minGrade: 10, prereqs: ['span1'] },
+    span3:     { name: 'Spanish 3',              subject: 'language', minGrade: 11, prereqs: ['span2'] },
+    apspan:    { name: 'AP Spanish',             subject: 'language', minGrade: 12, prereqs: ['span3'] },
+  };
+
+  const CAREERS = [
+    { id: 'nurse', name: 'Registered Nurse', required: ['bio', 'chem', 'anatomy', 'healthsci', 'medterm', 'cna'], recommended: ['nutrition', 'psych', 'stats'],
+      jobTitles: ['ICU Nurse', 'Pediatric Nurse', 'School Nurse', 'Nurse Educator', 'Travel Nurse'],
+      schoolingNote: "Typically an accredited nursing program \u2014 a 2-year associate's degree (ADN) or a 4-year bachelor's (BSN) \u2014 followed by the NCLEX-RN licensing exam." },
+    { id: 'swe', name: 'Software Engineer', required: ['introcs', 'apcsp', 'apcsa', 'alg2', 'precalc', 'datastruct'], recommended: ['calcab', 'cyber', 'webdev'],
+      jobTitles: ['Frontend Developer', 'Backend Engineer', 'Mobile App Developer', 'DevOps Engineer', 'QA Engineer'],
+      schoolingNote: 'Often a 4-year computer science or software engineering degree, though bootcamps, associate\u2019s degrees, and a strong self-taught portfolio are increasingly common ways in.' },
+    { id: 'mecheng', name: 'Mechanical Engineer', required: ['ied', 'poe', 'digelec', 'precalc', 'calcab', 'physics'], recommended: ['apphys1', 'apphysc', 'edd'],
+      jobTitles: ['Design Engineer', 'Manufacturing Engineer', 'Robotics Engineer', 'HVAC Engineer', 'Automotive Engineer'],
+      schoolingNote: 'Usually a 4-year ABET-accredited mechanical engineering degree; a Professional Engineer (PE) license matters for some roles later on.' },
+    { id: 'pt', name: 'Physical Therapist', required: ['bio', 'chem', 'anatomy', 'sportsmed', 'healthsci'], recommended: ['nutrition', 'psych', 'stats'],
+      jobTitles: ['Sports PT', 'Pediatric PT', 'Orthopedic PT', 'Home Health PT', 'Athletic Trainer'],
+      schoolingNote: "A Doctor of Physical Therapy (DPT) is the standard now \u2014 a 4-year bachelor's degree, often in kinesiology or biology, followed by a 3-year doctoral program." },
+    { id: 'accountant', name: 'Accountant or Financial Analyst', required: ['introbus', 'acct1', 'acct2', 'alg2', 'stats', 'apmicro'], recommended: ['perfin', 'apmacro', 'marketing'],
+      jobTitles: ['Tax Accountant', 'Auditor', 'Financial Analyst', 'Bookkeeper', 'Controller'],
+      schoolingNote: 'Usually a 4-year accounting or finance degree; the CPA license, which needs extra credit hours beyond a bachelor\u2019s, opens the most doors.' },
+    { id: 'designer', name: 'Graphic Designer', required: ['art1', 'digdesign', 'art2', 'apart'], recommended: ['photo', 'webdev', 'marketing'],
+      jobTitles: ['Brand Designer', 'UI/UX Designer', 'Packaging Designer', 'Motion Designer', 'Art Director'],
+      schoolingNote: 'A 4-year design degree helps, but this field weighs a strong portfolio more heavily than almost any other on this list \u2014 some designers break in through associate\u2019s programs or self-teaching.' },
+    { id: 'teacher', name: 'Elementary School Teacher', required: ['psych', 'appsych', 'speech', 'span1', 'span2'], recommended: ['sociology', 'art1', 'journalism'],
+      jobTitles: ['Classroom Teacher', 'ESL Teacher', 'Special Education Teacher', 'Reading Specialist', 'Instructional Coach'],
+      schoolingNote: 'A 4-year education degree with a student-teaching placement, plus your state\u2019s teaching license exam.' },
+    { id: 'cyberanalyst', name: 'Cybersecurity Analyst', required: ['introcs', 'apcsp', 'cyber', 'alg2', 'apcsa'], recommended: ['datastruct', 'apgov'],
+      jobTitles: ['SOC Analyst', 'Penetration Tester', 'Security Engineer', 'Incident Responder', 'Compliance Analyst'],
+      schoolingNote: 'A 4-year computer science or cybersecurity degree is common, but industry certifications carry real weight in hiring here too.' },
+    { id: 'trades', name: 'Electrician or Skilled Trades', required: ['ied', 'poe', 'digelec', 'geom', 'perfin'], recommended: ['physics', 'cea'],
+      jobTitles: ['Residential Electrician', 'Industrial Electrician', 'HVAC Technician', 'Solar Installer', 'Elevator Mechanic'],
+      schoolingNote: 'A paid apprenticeship, often through a union or trade school, is the standard path \u2014 usually 4 to 5 years combining on-the-job hours with classroom training, no 4-year degree required.' },
+    { id: 'psychologist', name: 'Clinical Psychologist', required: ['psych', 'appsych', 'bio', 'stats', 'sociology'], recommended: ['anatomy', 'chem', 'aplang'],
+      jobTitles: ['Clinical Psychologist', 'School Psychologist', 'Counseling Psychologist', 'Research Psychologist', 'Neuropsychologist'],
+      schoolingNote: 'A long road: a 4-year bachelor\u2019s, then a doctoral program (PhD or PsyD) that usually adds 5 to 7 more years, including supervised clinical hours.' },
+    { id: 'biomed', name: 'Biomedical Researcher', required: ['bio', 'chem', 'apbio', 'apchem', 'stats'], recommended: ['precalc', 'calcab', 'anatomy'],
+      jobTitles: ['Lab Research Associate', 'Clinical Research Coordinator', 'Biotech R&D Scientist', 'Genetic Counselor', 'Pharmaceutical Scientist'],
+      schoolingNote: 'A 4-year biology, biochemistry, or biomedical engineering degree to start; many research roles eventually call for a master\u2019s or PhD.' },
+    { id: 'architect', name: 'Architect', required: ['ied', 'art1', 'cea', 'geom', 'digdesign'], recommended: ['poe', 'physics', 'photo'],
+      jobTitles: ['Residential Architect', 'Urban Designer', 'Interior Architect', 'Landscape Architect', 'Architectural Drafter'],
+      schoolingNote: 'A professional architecture degree (a 5-year B.Arch, or a bachelor\u2019s plus a Master of Architecture), followed by a multi-year internship and licensing exams.' },
+    { id: 'journalist', name: 'Journalist or Communications', required: ['journalism', 'speech', 'aplang', 'aplit'], recommended: ['photo', 'apgov', 'sociology'],
+      jobTitles: ['Reporter', 'Copy Editor', 'Broadcast Journalist', 'PR Specialist', 'Content Strategist'],
+      schoolingNote: 'A 4-year journalism or communications degree helps, but a strong portfolio of published writing \u2014 school paper, blog, internships \u2014 often matters just as much.' },
+    { id: 'entrepreneur', name: 'Entrepreneur or Small Business Owner', required: ['introbus', 'marketing', 'acct1', 'perfin'], recommended: ['webdev', 'apmicro', 'speech'],
+      jobTitles: ['Small Business Owner', 'Startup Founder', 'Franchise Owner', 'E-commerce Seller', 'Freelance Consultant'],
+      schoolingNote: 'No single required path \u2014 a business degree helps with the fundamentals, but plenty of entrepreneurs start from a trade skill, a portfolio, or direct experience in the industry they build in.' },
+  ];
+
+  const GRAD_GRADE = 12;
+  const STORAGE_KEY = 'throughline:state';
+
+  const notOffered = new Set();
+  let courseOverrides = {};
+  let customCourses = {};
+  let COURSES = {};
+
+  function recordFor(id) {
+    if (customCourses[id]) return customCourses[id];
+    const base = DEFAULT_COURSES[id];
+    if (!base) return null;
+    const patch = courseOverrides[id];
+    if (!patch) return base;
+    return {
+      name: patch.name != null ? patch.name : base.name,
+      subject: patch.subject || base.subject,
+      minGrade: patch.minGrade || base.minGrade,
+      prereqs: patch.prereqs || base.prereqs,
+    };
+  }
+
+  function rebuildCatalog() {
+    const cat = {};
+    const allIds = Object.keys(DEFAULT_COURSES).concat(Object.keys(customCourses));
+    allIds.forEach(function (id) { if (!notOffered.has(id)) cat[id] = recordFor(id); });
+    COURSES = cat;
+  }
+
+  function slugify(name) {
+    let base = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-+|-+$)/g, '');
+    if (!base) base = 'course';
+    if (!DEFAULT_COURSES[base] && !customCourses[base]) return base;
+    let n = 2;
+    while (DEFAULT_COURSES[base + '-' + n] || customCourses[base + '-' + n]) n++;
+    return base + '-' + n;
+  }
+
+  function stripPrereqReferences(deletedId) {
+    Object.keys(courseOverrides).forEach(function (id) {
+      const p = courseOverrides[id];
+      if (p.prereqs && p.prereqs.indexOf(deletedId) !== -1) p.prereqs = p.prereqs.filter(function (x) { return x !== deletedId; });
+    });
+    Object.keys(customCourses).forEach(function (id) {
+      const r = customCourses[id];
+      if (r.prereqs && r.prereqs.indexOf(deletedId) !== -1) r.prereqs = r.prereqs.filter(function (x) { return x !== deletedId; });
+    });
+  }
+
+  function pruneInvalidState() {
+    const everKnown = new Set(Object.keys(DEFAULT_COURSES).concat(Object.keys(customCourses)));
+    Array.from(completed).forEach(function (id) { if (!everKnown.has(id)) completed.delete(id); });
+    Object.keys(overrides).forEach(function (id) { if (!COURSES[id]) delete overrides[id]; });
+    Array.from(ignoredViolations).forEach(function (id) { if (!everKnown.has(id)) ignoredViolations.delete(id); });
+    Object.keys(completedGrade).forEach(function (id) { if (!everKnown.has(id)) delete completedGrade[id]; });
+  }
+
+  function transitiveClosure(seedIds) {
+    const seen = new Set();
+    const stack = seedIds.slice();
+    while (stack.length) {
+      const id = stack.pop();
+      if (seen.has(id) || !COURSES[id]) continue;
+      seen.add(id);
+      COURSES[id].prereqs.forEach(function (p) { if (!seen.has(p)) stack.push(p); });
+    }
+    return seen;
+  }
+
+  function earliestGrades(needed, completedSet, currentGrade) {
+    const memo = {};
+    function visit(id, guard) {
+      if (memo[id] !== undefined) return memo[id];
+      if (guard.has(id)) return Infinity;
+      const c = COURSES[id];
+      if (!c) { memo[id] = Infinity; return Infinity; }
+      guard.add(id);
+      let earliest = Math.max(c.minGrade, currentGrade);
+      c.prereqs.forEach(function (p) {
+        if (completedSet.has(p)) return;
+        earliest = Math.max(earliest, visit(p, guard) + 1);
+      });
+      guard.delete(id);
+      memo[id] = earliest;
+      return earliest;
+    }
+    needed.forEach(function (id) { visit(id, new Set()); });
+    return memo;
+  }
+
+  function chainHeights(needed) {
+    const memo = {};
+    const children = {};
+    needed.forEach(function (id) { children[id] = []; });
+    needed.forEach(function (id) { COURSES[id].prereqs.forEach(function (p) { if (needed.has(p)) children[p].push(id); }); });
+    function visit(id) {
+      if (memo[id] !== undefined) return memo[id];
+      memo[id] = 0;
+      let best = 0;
+      children[id].forEach(function (ch) { best = Math.max(best, 1 + visit(ch)); });
+      memo[id] = best;
+      return best;
+    }
+    needed.forEach(visit);
+    return memo;
+  }
+
+  function deepestChain(id, completedSet) {
+    const c = COURSES[id];
+    if (!c) return [];
+    let best = [];
+    c.prereqs.forEach(function (p) {
+      if (completedSet.has(p) || !COURSES[p]) return;
+      const sub = deepestChain(p, completedSet);
+      if (sub.length > best.length) best = sub;
+    });
+    return best.concat([id]);
+  }
+
+  function findMissingPrereq(id, completedSet, guard) {
+    guard = guard || new Set();
+    if (guard.has(id)) return null;
+    guard.add(id);
+    const c = COURSES[id];
+    if (!c) return null;
+    for (let i = 0; i < c.prereqs.length; i++) {
+      const p = c.prereqs[i];
+      if (completedSet.has(p)) continue;
+      if (!COURSES[p]) return p;
+      const deeper = findMissingPrereq(p, completedSet, guard);
+      if (deeper) return deeper;
+    }
+    return null;
+  }
+
+
+  function plan(careerId, currentGrade, completedSet, slotsPerYear, includeRec) {
+    const career = CAREERS.find(function (c) { return c.id === careerId; });
+    const targets = includeRec ? career.required.concat(career.recommended) : career.required.slice();
+    const requiredSet = new Set(career.required);
+
+    const allNeeded = transitiveClosure(targets);
+    const needed = new Set();
+    allNeeded.forEach(function (id) { if (!completedSet.has(id)) needed.add(id); });
+
+    const years = [];
+    for (let g = currentGrade; g <= GRAD_GRADE; g++) years.push(g);
+
+    const earliest = earliestGrades(needed, completedSet, currentGrade);
+    const heights = chainHeights(needed);
+
+    const impossible = [];
+    needed.forEach(function (id) { if (earliest[id] > GRAD_GRADE) impossible.push(id); });
+
+    const schedulable = new Set();
+    needed.forEach(function (id) { if (earliest[id] <= GRAD_GRADE) schedulable.add(id); });
+
+    const placed = {};
+    const byYear = {};
+    years.forEach(function (g) { byYear[g] = []; });
+
+    const satisfied = new Set(completedSet);
+    const remaining = new Set(schedulable);
+
+    years.forEach(function (grade) {
+      const ready = [];
+      remaining.forEach(function (id) {
+        const c = COURSES[id];
+        if (grade < c.minGrade) return;
+        if (c.prereqs.every(function (p) { return satisfied.has(p); })) ready.push(id);
+      });
+      ready.sort(function (a, b) {
+        if (heights[b] !== heights[a]) return heights[b] - heights[a];
+        const ra = requiredSet.has(a) ? 0 : 1, rb = requiredSet.has(b) ? 0 : 1;
+        if (ra !== rb) return ra - rb;
+        return COURSES[a].name.localeCompare(COURSES[b].name);
+      });
+      const take = ready.slice(0, slotsPerYear);
+      take.forEach(function (id) { placed[id] = grade; byYear[grade].push(id); remaining.delete(id); satisfied.add(id); });
+    });
+
+    const unplaced = Array.from(remaining);
+
+    let minSlots = null;
+    if (impossible.length === 0 && unplaced.length > 0) {
+      for (let s = slotsPerYear + 1; s <= 8; s++) {
+        const trial = plan(careerId, currentGrade, completedSet, s, includeRec);
+        if (trial.feasible) { minSlots = s; break; }
+      }
+    }
+
+    return {
+      career: career, feasible: impossible.length === 0 && unplaced.length === 0,
+      impossible: impossible, unplaced: unplaced, byYear: byYear, years: years, placed: placed,
+      needed: needed, requiredSet: requiredSet, earliest: earliest, heights: heights, minSlots: minSlots,
+      alreadyDone: allNeeded.size - needed.size,
+      alreadyDoneIds: Array.from(allNeeded).filter(function (id) { return completedSet.has(id); }),
+    };
+  }
+
+  let overrides = {};               
+  const ignoredViolations = new Set(); 
+  function applyOverrides(result, ov) {
+    const finalByYear = {};
+    result.years.forEach(function (g) { finalByYear[g] = []; });
+    const finalGradeOf = {};
+
+    Object.keys(result.placed).forEach(function (id) { finalGradeOf[id] = result.placed[id]; });
+    result.impossible.forEach(function (id) { finalGradeOf[id] = null; });
+    result.unplaced.forEach(function (id) { finalGradeOf[id] = null; });
+
+    Object.keys(ov).forEach(function (id) {
+      if (!COURSES[id]) return;
+      const v = ov[id];
+      if (v === 'removed') finalGradeOf[id] = null;
+      else if (typeof v === 'number' && result.years.indexOf(v) !== -1) finalGradeOf[id] = v;
+    });
+
+    const unscheduled = [];
+    Object.keys(finalGradeOf).forEach(function (id) {
+      const g = finalGradeOf[id];
+      if (g === null || g === undefined) unscheduled.push(id); else finalByYear[g].push(id);
+    });
+    result.years.forEach(function (g) { finalByYear[g].sort(function (a, b) { return COURSES[a].name.localeCompare(COURSES[b].name); }); });
+
+    const violations = {};
+    Object.keys(finalGradeOf).forEach(function (id) {
+      const g = finalGradeOf[id];
+      if (g === null || g === undefined) return;
+      const c = COURSES[id];
+      if (!c) return;
+      const problems = [];
+      if (g < c.minGrade) problems.push('Not offered until grade ' + c.minGrade + '.');
+      c.prereqs.forEach(function (p) {
+        if (completed.has(p)) return;
+        if (!COURSES[p]) { const rec = recordFor(p); problems.push('Needs ' + (rec ? rec.name : p) + ', which your school does not offer.'); return; }
+        const pg = finalGradeOf[p];
+        if (pg === null || pg === undefined) problems.push('Needs ' + COURSES[p].name + ' first, which is not on the timeline.');
+        else if (pg >= g) problems.push('Needs ' + COURSES[p].name + ' first, but it is scheduled for grade ' + pg + '.');
+      });
+      if (problems.length) violations[id] = problems;
+    });
+
+    return { finalByYear: finalByYear, finalGradeOf: finalGradeOf, unscheduled: unscheduled, violations: violations };
+  }
+
+  function courseRole(id, result) {
+    if (result.requiredSet.has(id)) return 'required';
+    if (result.needed.has(id)) return 'recommended';
+    return 'elective';
+  }
+
+  function unscheduledReason(id, result, ov) {
+    if (ov[id] === 'removed') return 'you removed this';
+    if (result.impossible.indexOf(id) !== -1) return "can't fit before grade 12";
+    if (result.unplaced.indexOf(id) !== -1) return 'no room at this course load';
+    return 'not scheduled';
+  }
+
+  function moveCourse(id, grade) { overrides[id] = grade; persist(); render(); }
+  function removeFromTimeline(id) { overrides[id] = 'removed'; persist(); render(); }
+  function clearOverride(id) { delete overrides[id]; persist(); render(); }
+  function resetTimeline() { overrides = {}; persist(); render(); }
+  function toggleIgnored(id) {
+    if (ignoredViolations.has(id)) ignoredViolations.delete(id); else ignoredViolations.add(id);
+    persist(); render();
+  }
+
+
+  const careerSelect = document.getElementById('career');
+  const gradeSelect = document.getElementById('grade');
+  const slotsInput = document.getElementById('slots');
+  const slotsVal = document.getElementById('slots-val');
+  const includeRecInput = document.getElementById('include-rec');
+  const pickerBody = document.getElementById('picker-body');
+  const pickerCount = document.getElementById('picker-count');
+  const catalogList = document.getElementById('catalog-list');
+  const catalogCountEl = document.getElementById('catalog-count');
+  const verdictEl = document.getElementById('verdict');
+  const editBanner = document.getElementById('edit-banner');
+  const mapEl = document.getElementById('map');
+  const legendEl = document.getElementById('legend');
+  const yearsEl = document.getElementById('years');
+  const unscheduledPanel = document.getElementById('unscheduled-panel');
+  const unscheduledList = document.getElementById('unscheduled-list');
+
+  const completed = new Set();
+  let completedGrade = {}; 
+  let highlighted = null;
+  let editingId = null;
+  let finalGradeCache = {};
+
+  function el(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+  function svgEl(tag, attrs) {
+    const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.keys(attrs || {}).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    return n;
+  }
+  function subjectColor(id) { return SUBJECTS[COURSES[id].subject].color; }
+
+
+
+  function showPage(name) {
+    document.getElementById('page-plan').hidden = (name !== 'plan');
+    document.getElementById('page-catalog').hidden = (name !== 'catalog');
+    window.scrollTo(0, 0);
+  }
+  function syncFromHash() {
+    showPage(location.hash.replace('#', '') === 'catalog' ? 'catalog' : 'plan');
+  }
+  window.addEventListener('hashchange', syncFromHash);
+
+
+  function buildCatalogList() {
+    catalogList.innerHTML = '';
+    const allIds = Object.keys(DEFAULT_COURSES).concat(Object.keys(customCourses));
+
+    Object.keys(SUBJECTS).forEach(function (subjKey) {
+      const subj = SUBJECTS[subjKey];
+      const ids = allIds.filter(function (id) { const r = recordFor(id); return r && r.subject === subjKey; })
+        .sort(function (a, b) { return recordFor(a).name.localeCompare(recordFor(b).name); });
+      if (!ids.length) return;
+
+      const block = el('div', 'subject-block');
+      block.style.color = subj.color;
+      block.appendChild(el('div', 'subject-name', subj.name));
+
+      const rows = el('div', 'catalog-rows');
+      rows.style.color = 'var(--ink)';
+      ids.forEach(function (id) {
+        const rec = recordFor(id);
+        const row = el('div', 'catalog-row');
+        const label = el('label', 'course-check');
+        const box = document.createElement('input');
+        box.type = 'checkbox';
+        box.checked = !notOffered.has(id);
+        box.addEventListener('change', function () {
+          if (box.checked) notOffered.delete(id); else notOffered.add(id);
+          onCatalogChanged();
+        });
+        label.appendChild(box);
+        label.appendChild(el('span', null, rec.name));
+        row.appendChild(label);
+
+        const editBtn = el('button', 'row-edit', 'Edit');
+        editBtn.type = 'button';
+        editBtn.setAttribute('aria-label', 'Edit ' + rec.name);
+        editBtn.addEventListener('click', function () { openCourseEditor(id); });
+        row.appendChild(editBtn);
+
+        rows.appendChild(row);
+      });
+      block.appendChild(rows);
+      catalogList.appendChild(block);
+    });
+
+    const offered = allIds.filter(function (id) { return !notOffered.has(id); }).length;
+    catalogCountEl.textContent = offered + ' of ' + allIds.length + ' courses offered';
+    const summaryNote = document.getElementById('catalog-summary-note');
+    if (summaryNote) summaryNote.textContent = offered + ' of ' + allIds.length + " courses are currently marked as offered at your school.";
+  }
+
+  function buildPrereqCheckboxes(excludeId, selected) {
+    const box = document.getElementById('editor-prereqs');
+    box.innerHTML = '';
+    const selectedSet = new Set(selected);
+    const allIds = Object.keys(DEFAULT_COURSES).concat(Object.keys(customCourses))
+      .filter(function (id) { return id !== excludeId; })
+      .sort(function (a, b) { return recordFor(a).name.localeCompare(recordFor(b).name); });
+    allIds.forEach(function (id) {
+      const label = el('label', 'course-check');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.value = id;
+      cb.checked = selectedSet.has(id);
+      label.appendChild(cb);
+      label.appendChild(el('span', null, recordFor(id).name));
+      box.appendChild(label);
+    });
+  }
+
+  function openCourseEditor(id) {
+    editingId = id;
+    const rec = recordFor(id);
+    document.getElementById('course-editor').hidden = false;
+    document.getElementById('editor-title').textContent = rec.name;
+    document.getElementById('editor-name').value = rec.name;
+    document.getElementById('editor-subject').value = rec.subject;
+    document.getElementById('editor-grade').value = String(rec.minGrade);
+    buildPrereqCheckboxes(id, rec.prereqs);
+    document.getElementById('editor-delete').hidden = !customCourses[id];
+    document.getElementById('course-editor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function openNewCourseEditor() {
+    editingId = null;
+    document.getElementById('course-editor').hidden = false;
+    document.getElementById('editor-title').textContent = 'new course';
+    document.getElementById('editor-name').value = '';
+    document.getElementById('editor-subject').value = 'math';
+    document.getElementById('editor-grade').value = '9';
+    buildPrereqCheckboxes(null, []);
+    document.getElementById('editor-delete').hidden = true;
+    document.getElementById('course-editor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    document.getElementById('editor-name').focus();
+  }
+
+  function closeCourseEditor() { editingId = null; document.getElementById('course-editor').hidden = true; }
+
+  function saveCourseEditor() {
+    const name = document.getElementById('editor-name').value.trim();
+    if (!name) { alert("Give the course a name — that's the one thing it needs."); return; }
+    const subject = document.getElementById('editor-subject').value;
+    const minGrade = Number(document.getElementById('editor-grade').value);
+    const prereqs = Array.from(document.getElementById('editor-prereqs').querySelectorAll('input:checked')).map(function (b) { return b.value; });
+
+    if (editingId === null) {
+      customCourses[slugify(name)] = { name: name, subject: subject, minGrade: minGrade, prereqs: prereqs };
+    } else if (customCourses[editingId]) {
+      customCourses[editingId] = { name: name, subject: subject, minGrade: minGrade, prereqs: prereqs };
+    } else {
+      courseOverrides[editingId] = { name: name, subject: subject, minGrade: minGrade, prereqs: prereqs };
+    }
+    closeCourseEditor();
+    onCatalogChanged();
+  }
+
+  function deleteCourseEditor() {
+    if (editingId && customCourses[editingId]) {
+      stripPrereqReferences(editingId);
+      delete customCourses[editingId];
+      notOffered.delete(editingId);
+      delete courseOverrides[editingId];
+    }
+    closeCourseEditor();
+    onCatalogChanged();
+  }
+
+  function onCatalogChanged() {
+    rebuildCatalog();
+    pruneInvalidState();
+    buildCatalogList();
+    buildCompletedPicker();
+    persist();
+    render();
+  }
+
+
+  const GRADE_TAKEN_OPTIONS = [
+    ['', 'when?'],
+    ['pre9', '8th or earlier'],
+    ['9', '9th grade'],
+    ['10', '10th grade'],
+    ['11', '11th grade'],
+    ['12', '12th grade'],
+  ];
+
+  function buildCompletedPicker() {
+    pickerBody.innerHTML = '';
+    Object.keys(SUBJECTS).forEach(function (subjKey) {
+      const subj = SUBJECTS[subjKey];
+      const ids = Object.keys(COURSES).filter(function (id) { return COURSES[id].subject === subjKey; })
+        .sort(function (a, b) { return COURSES[a].name.localeCompare(COURSES[b].name); });
+      if (!ids.length) return;
+
+      const block = el('div', 'subject-block');
+      block.style.color = subj.color;
+      block.appendChild(el('div', 'subject-name', subj.name));
+
+      const grid = el('div', 'course-checks');
+      grid.style.color = 'var(--ink)';
+      ids.forEach(function (id) {
+        const row = el('div', 'completed-row');
+        const label = el('label', 'course-check');
+        const box = document.createElement('input');
+        box.type = 'checkbox';
+        box.checked = completed.has(id);
+        label.appendChild(box);
+        label.appendChild(el('span', null, COURSES[id].name));
+        row.appendChild(label);
+
+        const gradeSel = document.createElement('select');
+        gradeSel.className = 'completed-grade-select';
+        gradeSel.setAttribute('aria-label', 'Grade ' + COURSES[id].name + ' was completed');
+        gradeSel.hidden = !completed.has(id);
+        GRADE_TAKEN_OPTIONS.forEach(function (pair) {
+          const opt = el('option', null, pair[1]); opt.value = pair[0]; gradeSel.appendChild(opt);
+        });
+        gradeSel.value = completedGrade[id] || '';
+        gradeSel.addEventListener('change', function () {
+          if (gradeSel.value) completedGrade[id] = gradeSel.value; else delete completedGrade[id];
+          persist(); render();
+        });
+        row.appendChild(gradeSel);
+
+        box.addEventListener('change', function () {
+          if (box.checked) { completed.add(id); gradeSel.hidden = false; }
+          else { completed.delete(id); gradeSel.hidden = true; gradeSel.value = ''; delete completedGrade[id]; }
+          persist(); render();
+        });
+
+        grid.appendChild(row);
+      });
+      block.appendChild(grid);
+      pickerBody.appendChild(block);
+    });
+
+    const actions = el('div', 'picker-actions');
+    const clearBtn = el('button', 'btn-link', 'Clear all');
+    clearBtn.type = 'button';
+    clearBtn.addEventListener('click', function () {
+      completed.clear();
+      Object.keys(completedGrade).forEach(function (id) { delete completedGrade[id]; });
+      persist(); buildCompletedPicker(); render();
+    });
+    actions.appendChild(clearBtn);
+    pickerBody.appendChild(actions);
+  }
+
+
+  const NODE_W = 158, NODE_H = 42, COL_GAP = 78, ROW_GAP = 12, TOP_PAD = 42, SIDE_PAD = 10;
+
+  function renderMap(view, violations) {
+    while (mapEl.firstChild) mapEl.removeChild(mapEl.firstChild);
+    const cols = view.years;
+    const positions = {};
+    let maxRows = 0;
+
+    cols.forEach(function (grade, colIdx) {
+      const ids = view.byYear[grade].slice();
+      function avgParentY(id) {
+        const ps = COURSES[id].prereqs.filter(function (p) { return positions[p]; });
+        if (!ps.length) return 9999;
+        return ps.reduce(function (s, p) { return s + positions[p].y; }, 0) / ps.length;
+      }
+      ids.sort(function (a, b) {
+        const pa = avgParentY(a), pb = avgParentY(b);
+        if (pa !== pb) return pa - pb;
+        return SUBJECTS[COURSES[a].subject].name.localeCompare(SUBJECTS[COURSES[b].subject].name);
+      });
+      ids.forEach(function (id, rowIdx) {
+        positions[id] = { x: SIDE_PAD + colIdx * (NODE_W + COL_GAP), y: TOP_PAD + rowIdx * (NODE_H + ROW_GAP), col: colIdx };
+      });
+      maxRows = Math.max(maxRows, ids.length);
+    });
+
+    const width = SIDE_PAD * 2 + cols.length * NODE_W + (cols.length - 1) * COL_GAP;
+    const height = TOP_PAD + Math.max(1, maxRows) * (NODE_H + ROW_GAP) + 16;
+    mapEl.setAttribute('width', width);
+    mapEl.setAttribute('height', height);
+    mapEl.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+
+    cols.forEach(function (grade, i) {
+      const x = SIDE_PAD + i * (NODE_W + COL_GAP);
+      const label = svgEl('text', { x: x, y: 18, class: 'col-label' });
+      label.textContent = 'GRADE ' + grade;
+      mapEl.appendChild(label);
+      mapEl.appendChild(svgEl('line', { x1: x, y1: 26, x2: x + NODE_W, y2: 26, class: 'col-rule' }));
+    });
+
+    if (Object.keys(positions).length === 0) {
+      const t = svgEl('text', { x: SIDE_PAD, y: TOP_PAD + 20, class: 'col-label' });
+      t.textContent = 'Nothing on the timeline yet.';
+      mapEl.appendChild(t);
+      return;
+    }
+
+    const edgeEls = {};
+    Object.keys(positions).forEach(function (id) {
+      COURSES[id].prereqs.forEach(function (p) {
+        if (!positions[p]) return;
+        const a = positions[p], b = positions[id];
+        const x1 = a.x + NODE_W, y1 = a.y + NODE_H / 2, x2 = b.x, y2 = b.y + NODE_H / 2;
+        const mid = (x1 + x2) / 2;
+        const path = svgEl('path', { d: 'M ' + x1 + ' ' + y1 + ' C ' + mid + ' ' + y1 + ', ' + mid + ' ' + y2 + ', ' + x2 + ' ' + y2, class: 'edge', stroke: subjectColor(p), 'stroke-opacity': 0.55 });
+        mapEl.appendChild(path);
+        edgeEls[p + '>' + id] = path;
+      });
+    });
+
+    const nodeEls = {};
+    Object.keys(positions).forEach(function (id) {
+      const pos = positions[id];
+      const c = COURSES[id];
+      const flagged = violations[id] && !ignoredViolations.has(id);
+      const g = svgEl('g', { class: 'node-box', tabindex: '0', role: 'button' });
+
+      const rect = svgEl('rect', { x: pos.x, y: pos.y, width: NODE_W, height: NODE_H, rx: 7, fill: subjectColor(id) });
+      if (!view.requiredSet.has(id)) rect.setAttribute('fill-opacity', '0.62');
+      if (flagged) { rect.setAttribute('stroke', '#E0312B'); rect.setAttribute('stroke-width', '2.5'); rect.setAttribute('stroke-dasharray', '4 3'); }
+      g.appendChild(rect);
+
+      const label = svgEl('text', { x: pos.x + 11, y: pos.y + 19, class: 'node-label' });
+      label.textContent = c.name;
+      g.appendChild(label);
+
+      const sub = svgEl('text', { x: pos.x + 11, y: pos.y + 32, class: 'node-sub' });
+      sub.textContent = flagged ? 'needs a look' : (violations[id] ? 'overridden' : (view.requiredSet.has(id) ? 'required' : 'recommended'));
+      g.appendChild(sub);
+
+      const title = svgEl('title');
+      title.textContent = c.name + (c.prereqs.length ? ' — needs ' + c.prereqs.map(function (p) { return COURSES[p] ? COURSES[p].name : p; }).join(', ') : ' — no prerequisites')
+        + (violations[id] ? ' — ' + violations[id].join(' ') + (ignoredViolations.has(id) ? ' (overridden)' : '') : '');
+      g.appendChild(title);
+
+      function toggle() { highlighted = (highlighted === id) ? null : id; applyHighlight(positions, nodeEls, edgeEls); }
+      g.addEventListener('click', toggle);
+      g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+
+      mapEl.appendChild(g);
+      nodeEls[id] = g;
+    });
+
+    applyHighlight(positions, nodeEls, edgeEls);
+  }
+
+  function applyHighlight(positions, nodeEls, edgeEls) {
+    if (!highlighted || !positions[highlighted]) {
+      Object.keys(nodeEls).forEach(function (id) { nodeEls[id].classList.remove('is-dim'); });
+      Object.keys(edgeEls).forEach(function (k) { edgeEls[k].classList.remove('is-dim'); edgeEls[k].setAttribute('stroke-opacity', '0.55'); });
+      return;
+    }
+    const keep = new Set([highlighted]);
+    (function upstream(id) { COURSES[id].prereqs.forEach(function (p) { if (positions[p] && !keep.has(p)) { keep.add(p); upstream(p); } }); })(highlighted);
+    (function downstream(id) {
+      Object.keys(positions).forEach(function (other) {
+        if (keep.has(other)) return;
+        if (COURSES[other].prereqs.indexOf(id) !== -1) { keep.add(other); downstream(other); }
+      });
+    })(highlighted);
+    Object.keys(nodeEls).forEach(function (id) { nodeEls[id].classList.toggle('is-dim', !keep.has(id)); });
+    Object.keys(edgeEls).forEach(function (k) {
+      const parts = k.split('>');
+      const on = keep.has(parts[0]) && keep.has(parts[1]);
+      edgeEls[k].classList.toggle('is-dim', !on);
+      edgeEls[k].setAttribute('stroke-opacity', on ? '0.9' : '0.55');
+    });
+  }
+
+
+  function alreadyDoneLine(result) {
+    if (result.alreadyDone === 0) return null;
+    const accel = result.alreadyDoneIds.filter(function (id) { return completedGrade[id] === 'pre9'; }).length;
+    return 'You have ' + result.alreadyDone + (result.alreadyDone === 1 ? ' course' : ' courses') + ' already finished toward this path' +
+      (accel > 0 ? ', including ' + accel + ' from before high school' : '') + '.';
+  }
+
+  function renderVerdict(result, merged, currentGrade, slots) {
+    verdictEl.className = 'verdict';
+    verdictEl.innerHTML = '';
+    const yearsLeft = GRAD_GRADE - currentGrade + 1;
+    const totalNeeded = result.needed.size;
+
+    if (totalNeeded === 0) {
+      verdictEl.appendChild(el('h2', null, 'You have already done all of it.'));
+      verdictEl.appendChild(el('p', null, 'Every course this path calls for is marked finished. Try turning on recommended courses, or look at a career one step further out.'));
+      return;
+    }
+
+    const hasEdits = Object.keys(overrides).length > 0 || ignoredViolations.size > 0;
+    const doneLine = alreadyDoneLine(result);
+
+    const activeViolations = {};
+    Object.keys(merged.violations).forEach(function (id) { if (!ignoredViolations.has(id)) activeViolations[id] = merged.violations[id]; });
+    const violationIds = Object.keys(activeViolations);
+
+    const missingNeeded = merged.unscheduled.filter(function (id) { return result.needed.has(id); });
+    const stillImpossible = missingNeeded.filter(function (id) { return result.impossible.indexOf(id) !== -1; });
+    const stillUnplaced = missingNeeded.filter(function (id) { return result.impossible.indexOf(id) === -1; });
+
+    if (stillImpossible.length === 0 && stillUnplaced.length === 0 && violationIds.length === 0) {
+      verdictEl.appendChild(el('h2', null, hasEdits && !result.feasible ? 'Your edited plan works!' : 'Good news: you can still get there!'));
+      if (hasEdits && !result.feasible) {
+        verdictEl.appendChild(el('p', null, "Nice work. The changes you made manually close the gap, so everything this path needs now fits." + (doneLine ? ' ' + doneLine : '')));
+      } else {
+        verdictEl.appendChild(el('p', null, result.career.name + ' is well within reach. It takes ' + (totalNeeded + result.alreadyDone) + ' courses in total, once every hidden prerequisite is counted.' + (doneLine ? ' ' + doneLine : '') + ' The ' + totalNeeded + ' still ahead of you fit in ' + yearsLeft + (yearsLeft === 1 ? ' year' : ' years') + ' at about ' + slots + ' a year' + (hasEdits ? ', just the way you have them laid out below.' : ', and your plan is mapped out below.')));
+      }
+      if (!hasEdits) {
+        const tightest = Object.keys(result.placed).filter(function (id) { return result.earliest[id] === result.placed[id] && result.heights[id] > 0; })
+          .sort(function (a, b) { return result.heights[b] - result.heights[a]; })[0];
+        if (tightest) {
+          verdictEl.appendChild(el('p', null, 'One to keep on your radar: ' + COURSES[tightest].name + '. It is placed in the earliest year it can be taken, and ' + result.heights[tightest] + ' more ' + (result.heights[tightest] === 1 ? 'course builds' : 'courses build') + ' on it, so staying on schedule here keeps the whole plan on track.'));
+        }
+      }
+      return;
+    }
+
+    if (stillImpossible.length > 0) {
+      verdictEl.classList.add('is-tight');
+      const worst = stillImpossible.slice().sort(function (a, b) { return result.earliest[b] - result.earliest[a]; })[0];
+      const missing = findMissingPrereq(worst, completed);
+
+      if (missing) {
+        verdictEl.appendChild(el('h2', null, "Almost there \u2014 one catalog detail to sort out."));
+        const missingRec = recordFor(missing);
+        verdictEl.appendChild(el('p', null, COURSES[worst].name + ' needs ' + (missingRec ? missingRec.name : missing) + ' first, and that course is not currently marked as offered.'));
+        verdictEl.appendChild(el('p', null, "If your school offers it, maybe under a different name, just turn it back on (or add it) on the catalog page and your plan will update. If it isn't offered there, there are still good ways in: dual enrollment, an online course, or a summer program."));
+      } else {
+        verdictEl.appendChild(el('h2', null, "This path takes a little extra planning \u2014 and there are good ways to make it work."));
+        const chain = deepestChain(worst, completed);
+        verdictEl.appendChild(el('p', null, COURSES[worst].name + ' is the key course to focus on. Working backward, it builds on a chain that needs ' + chain.length + ' more ' + (chain.length === 1 ? 'year' : 'years') + ' of coursework, and you have ' + yearsLeft + ' \u2014 so the goal is to free up a little time.'));
+        verdictEl.appendChild(el('p', 'chain', chain.map(function (id) { return COURSES[id].name; }).join('  →  ')));
+        verdictEl.appendChild(el('p', null, 'These courses build on each other, so moving one around on its own will not be enough. Here are some ways to get ahead:'));
+        const ul = document.createElement('ul');
+        [
+          'Summer school or an online credit for ' + COURSES[chain[0]].name + ', which moves the whole chain up a year.',
+          'Doubling up on two courses in the same chain, if your counselor will sign off on it.',
+          'Dual enrollment at a community college, which often waives the high school sequence entirely.',
+          'A related path with a shorter runway \u2014 most of these careers have more than one way in, and plenty of people get there by a different route.',
+        ].forEach(function (t) { ul.appendChild(el('li', null, t)); });
+        verdictEl.appendChild(ul);
+      }
+      if (stillImpossible.length > 1) {
+        verdictEl.appendChild(el('p', null, stillImpossible.length + ' courses on this path need the same kind of extra planning: ' + stillImpossible.map(function (id) { return COURSES[id].name; }).join(', ') + '.'));
+      }
+      const fixedSoFar = result.impossible.length - stillImpossible.length;
+      if (fixedSoFar > 0) {
+        verdictEl.appendChild(el('p', null, 'Your edits already resolved ' + fixedSoFar + ' of the original ' + result.impossible.length + ' tricky ' + (result.impossible.length === 1 ? 'course' : 'courses') + ' — here is what is left to work on.'));
+      }
+      if (doneLine) verdictEl.appendChild(el('p', null, doneLine));
+      return;
+    }
+
+    if (violationIds.length > 0) {
+      verdictEl.classList.add('is-tight');
+      verdictEl.appendChild(el('h2', null, violationIds.length === 1 ? 'One placement needs a second look.' : violationIds.length + ' placements need a second look.'));
+      verdictEl.appendChild(el('p', null, 'Every course this path needs is on the timeline, but not all of it is in a legal order yet.'));
+      const ul = document.createElement('ul');
+      violationIds.slice(0, 6).forEach(function (id) { ul.appendChild(el('li', null, COURSES[id].name + ' — ' + activeViolations[id].join(' '))); });
+      verdictEl.appendChild(ul);
+      verdictEl.appendChild(el('p', null, 'Drag it to fix the order — or, if your school genuinely runs it differently, click the warning icon on that course below to mark it overridden.'));
+      if (doneLine) verdictEl.appendChild(el('p', null, doneLine));
+      return;
+    }
+
+
+    verdictEl.classList.add('is-tight');
+    verdictEl.appendChild(el('h2', null, 'Almost there.'));
+    verdictEl.appendChild(el('p', null, 'Every prerequisite chain fits inside your ' + yearsLeft + (yearsLeft === 1 ? ' remaining year' : ' remaining years') + ', so nothing left is structurally out of reach. ' + stillUnplaced.length + ' ' + (stillUnplaced.length === 1 ? 'course is' : 'courses are') + ' not on the timeline yet.'));
+    if (result.minSlots && !hasEdits) {
+      verdictEl.appendChild(el('p', null, 'The whole path fits at ' + result.minSlots + ' pathway courses a year. Drag the slider up and watch the map fill in — or place the rest manually below.'));
+    } else {
+      verdictEl.appendChild(el('p', null, 'Drag one onto a year below, or use "Add to plan," to finish laying it out.'));
+    }
+    verdictEl.appendChild(el('p', 'chain', 'Still open: ' + stillUnplaced.map(function (id) { return COURSES[id].name; }).join(', ')));
+    if (doneLine) verdictEl.appendChild(el('p', null, doneLine));
+  }
+
+
+
+  function buildCourseRow(id, grade, result, violations) {
+    const li = el('li', 'course-row');
+    li.draggable = true;
+    li.dataset.id = id;
+    const flagged = violations[id] && !ignoredViolations.has(id);
+    if (flagged) li.classList.add('is-violation');
+
+    li.addEventListener('dragstart', function (e) {
+      e.dataTransfer.setData('text/plain', id);
+      e.dataTransfer.effectAllowed = 'move';
+      li.classList.add('is-dragging');
+    });
+    li.addEventListener('dragend', function () { li.classList.remove('is-dragging'); });
+
+    const dot = el('span', 'dot'); dot.style.background = subjectColor(id); li.appendChild(dot);
+
+    const nameWrap = el('span', 'course-row-name');
+    nameWrap.appendChild(document.createTextNode(COURSES[id].name));
+    const role = courseRole(id, result);
+    if (role !== 'required') nameWrap.appendChild(el('span', 'opt-tag', role));
+    li.appendChild(nameWrap);
+
+    if (violations[id]) {
+      const ignored = ignoredViolations.has(id);
+      const warnBtn = document.createElement('button');
+      warnBtn.type = 'button';
+      warnBtn.draggable = false;
+      warnBtn.className = ignored ? 'warn-icon warn-icon--ignored' : 'warn-icon';
+      warnBtn.textContent = ignored ? '\u2713' : '!';
+      warnBtn.title = (ignored ? 'Overridden — ' : '') + violations[id].join(' ') + (ignored ? ' Click to flag this again.' : ' Click if your school handles this differently.');
+      warnBtn.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+      warnBtn.addEventListener('click', function (e) { e.stopPropagation(); toggleIgnored(id); });
+      li.appendChild(warnBtn);
+    }
+
+    if (grade !== null) {
+      const idx = result.years.indexOf(grade);
+      const moveWrap = el('span', 'row-moves');
+      const prevBtn = el('button', 'row-move', '\u25C0');
+      prevBtn.type = 'button'; prevBtn.setAttribute('aria-label', 'Move to previous year'); prevBtn.disabled = idx <= 0;
+      prevBtn.addEventListener('click', function () { moveCourse(id, result.years[idx - 1]); });
+      const nextBtn = el('button', 'row-move', '\u25B6');
+      nextBtn.type = 'button'; nextBtn.setAttribute('aria-label', 'Move to next year'); nextBtn.disabled = idx >= result.years.length - 1;
+      nextBtn.addEventListener('click', function () { moveCourse(id, result.years[idx + 1]); });
+      moveWrap.appendChild(prevBtn); moveWrap.appendChild(nextBtn);
+      li.appendChild(moveWrap);
+
+      const rmBtn = el('button', 'row-remove', '\u00D7');
+      rmBtn.type = 'button'; rmBtn.setAttribute('aria-label', 'Take off the timeline');
+      rmBtn.addEventListener('click', function () { removeFromTimeline(id); });
+      li.appendChild(rmBtn);
+    } else {
+      const assignSel = document.createElement('select');
+      assignSel.className = 'row-assign';
+      result.years.forEach(function (g) { const opt = el('option', null, 'Grade ' + g); opt.value = String(g); assignSel.appendChild(opt); });
+      assignSel.addEventListener('change', function () { moveCourse(id, Number(assignSel.value)); });
+      li.appendChild(assignSel);
+
+      if (!result.needed.has(id)) {
+        const rmBtn = el('button', 'row-remove', '\u00D7');
+        rmBtn.type = 'button'; rmBtn.setAttribute('aria-label', 'Remove from plan');
+        rmBtn.addEventListener('click', function () { clearOverride(id); });
+        li.appendChild(rmBtn);
+      }
+    }
+    return li;
+  }
+
+  function wireDropTarget(list, grade) {
+    list.addEventListener('dragover', function (e) { e.preventDefault(); list.classList.add('drag-over'); });
+    list.addEventListener('dragleave', function () { list.classList.remove('drag-over'); });
+    list.addEventListener('drop', function (e) {
+      e.preventDefault();
+      list.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain');
+      if (!id) return;
+      if (grade === null) { if (finalGradeCache[id] !== null && finalGradeCache[id] !== undefined) removeFromTimeline(id); }
+      else moveCourse(id, grade);
+    });
+  }
+
+  function renderTimeline(result, finalByYear, violations) {
+    yearsEl.innerHTML = '';
+    result.years.forEach(function (grade) {
+      const ids = finalByYear[grade];
+      const card = el('div', 'year-card');
+      card.appendChild(el('h4', null, 'Grade ' + grade));
+      card.appendChild(el('div', 'year-meta', ids.length === 0 ? 'nothing scheduled' : ids.length + (ids.length === 1 ? ' course' : ' courses')));
+      const list = el('ul', 'year-list');
+      wireDropTarget(list, grade);
+      if (ids.length === 0) list.appendChild(el('li', 'year-empty-row', 'Drop a course here'));
+      else ids.forEach(function (id) { list.appendChild(buildCourseRow(id, grade, result, violations)); });
+      card.appendChild(list);
+      yearsEl.appendChild(card);
+    });
+  }
+
+  function renderUnscheduled(result, unscheduled, violations) {
+    unscheduledList.innerHTML = '';
+    if (unscheduled.length === 0) { unscheduledPanel.hidden = true; return; }
+    unscheduledPanel.hidden = false;
+    unscheduled.slice().sort(function (a, b) { return COURSES[a].name.localeCompare(COURSES[b].name); }).forEach(function (id) {
+      const row = buildCourseRow(id, null, result, violations);
+      const reason = el('span', 'opt-tag', unscheduledReason(id, result, overrides));
+      row.insertBefore(reason, row.lastChild);
+      unscheduledList.appendChild(row);
+    });
+  }
+
+  function buildAddCourseControl(finalGradeOf) {
+    const sel = document.getElementById('add-course-select');
+    const gradeSel = document.getElementById('add-course-grade');
+    const btn = document.getElementById('btn-add-to-plan');
+    sel.innerHTML = ''; gradeSel.innerHTML = '';
+    const grade = Number(gradeSelect.value);
+    for (let g = grade; g <= GRAD_GRADE; g++) { const opt = el('option', null, 'Grade ' + g); opt.value = String(g); gradeSel.appendChild(opt); }
+
+    const candidates = Object.keys(COURSES).filter(function (id) { return !completed.has(id) && (finalGradeOf[id] === null || finalGradeOf[id] === undefined); })
+      .sort(function (a, b) { return COURSES[a].name.localeCompare(COURSES[b].name); });
+
+    if (candidates.length === 0) { sel.appendChild(el('option', null, 'Nothing left to add')); sel.disabled = true; btn.disabled = true; return; }
+    sel.disabled = false; btn.disabled = false;
+    candidates.forEach(function (id) {
+      const opt = el('option', null, COURSES[id].name + '  \u00B7  ' + SUBJECTS[COURSES[id].subject].name);
+      opt.value = id; sel.appendChild(opt);
+    });
+  }
+
+
+
+  function renderCareerInfo(career) {
+    document.getElementById('career-info-heading').textContent = 'Where ' + career.name + ' can lead';
+
+    const jobsList = document.getElementById('career-info-jobs');
+    jobsList.innerHTML = '';
+    (career.jobTitles || []).forEach(function (title) { jobsList.appendChild(el('li', null, title)); });
+
+    document.getElementById('career-info-schooling').textContent = career.schoolingNote || '';
+  }
+
+
+  Object.keys(SUBJECTS).forEach(function (k) {
+    const item = el('div', 'legend-item');
+    const sw = el('span', 'legend-swatch'); sw.style.background = SUBJECTS[k].color;
+    item.appendChild(sw); item.appendChild(el('span', null, SUBJECTS[k].name));
+    legendEl.appendChild(item);
+  });
+
+
+
+  function persist() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        career: careerSelect.value, grade: gradeSelect.value, slots: slotsInput.value, rec: includeRecInput.checked,
+        completed: Array.from(completed), completedGrade: completedGrade, notOffered: Array.from(notOffered),
+        courseOverrides: courseOverrides, customCourses: customCourses, overrides: overrides,
+        ignoredViolations: Array.from(ignoredViolations),
+      }));
+    } catch (e) { /* storage unavailable; the app still works, just doesn't remember */ }
+  }
+
+  function restore() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const s = JSON.parse(raw);
+      if (s.career && CAREERS.some(function (c) { return c.id === s.career; })) careerSelect.value = s.career;
+      if (s.grade) gradeSelect.value = s.grade;
+      if (s.slots) slotsInput.value = s.slots;
+      includeRecInput.checked = !!s.rec;
+      (s.notOffered || []).forEach(function (id) { notOffered.add(id); });
+      courseOverrides = s.courseOverrides || {};
+      customCourses = s.customCourses || {};
+      overrides = s.overrides || {};
+      completedGrade = s.completedGrade || {};
+      (s.ignoredViolations || []).forEach(function (id) { ignoredViolations.add(id); });
+      (s.completed || []).forEach(function (id) { if (DEFAULT_COURSES[id] || customCourses[id]) completed.add(id); });
+    } catch (e) { /* corrupt or unavailable; start fresh */ }
+  }
+
+
+
+
+  function render() {
+    const grade = Number(gradeSelect.value);
+    const slots = Number(slotsInput.value);
+    slotsVal.textContent = String(slots);
+
+    const accelCount = Array.from(completed).filter(function (id) { return completedGrade[id] === 'pre9'; }).length;
+    pickerCount.textContent = completed.size === 0 ? 'none selected' :
+      completed.size + (completed.size === 1 ? ' course' : ' courses') + ' finished' + (accelCount > 0 ? ' (' + accelCount + ' before 9th grade)' : '');
+
+    highlighted = null;
+    const result = plan(careerSelect.value, grade, completed, slots, includeRecInput.checked);
+    const merged = applyOverrides(result, overrides);
+    finalGradeCache = merged.finalGradeOf;
+
+    renderVerdict(result, merged, grade, slots);
+
+    const editCount = Object.keys(overrides).length;
+    if (editCount > 0) {
+      editBanner.hidden = false;
+      const violCount = Object.keys(merged.violations).filter(function (id) { return !ignoredViolations.has(id); }).length;
+      document.getElementById('edit-banner-text').textContent =
+        'Showing your edited timeline (' + editCount + (editCount === 1 ? ' change' : ' changes') + ')' +
+        (violCount > 0 ? ' \u2014 ' + violCount + (violCount === 1 ? ' course needs' : ' courses need') + ' a second look.' : '.');
+    } else {
+      editBanner.hidden = true;
+    }
+
+    renderMap({ years: result.years, byYear: merged.finalByYear, requiredSet: result.requiredSet }, merged.violations);
+    renderTimeline(result, merged.finalByYear, merged.violations);
+    renderUnscheduled(result, merged.unscheduled, merged.violations);
+    buildAddCourseControl(merged.finalGradeOf);
+    renderCareerInfo(result.career);
+  }
+
+
+  CAREERS.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }).forEach(function (c) {
+    const opt = el('option', null, c.name); opt.value = c.id; careerSelect.appendChild(opt);
+  });
+  careerSelect.value = 'nurse';
+
+  Object.keys(SUBJECTS).forEach(function (k) {
+    const opt = el('option', null, SUBJECTS[k].name); opt.value = k;
+    document.getElementById('editor-subject').appendChild(opt);
+  });
+  [9, 10, 11, 12].forEach(function (g) {
+    const opt = el('option', null, 'Grade ' + g); opt.value = String(g);
+    document.getElementById('editor-grade').appendChild(opt);
+  });
+
+  [careerSelect, gradeSelect, includeRecInput].forEach(function (n) {
+    n.addEventListener('change', function () {
+      overrides = {};
+      persist(); render();
+    });
+  });
+  slotsInput.addEventListener('input', function () { persist(); render(); });
+
+  document.getElementById('btn-add-course').addEventListener('click', openNewCourseEditor);
+  document.getElementById('btn-reset-catalog').addEventListener('click', function () {
+    if (!confirm('Reset the catalog to the built-in defaults? This clears anything you added or edited.')) return;
+    notOffered.clear(); courseOverrides = {}; customCourses = {};
+    onCatalogChanged();
+  });
+  document.getElementById('editor-save').addEventListener('click', saveCourseEditor);
+  document.getElementById('editor-cancel').addEventListener('click', closeCourseEditor);
+  document.getElementById('editor-delete').addEventListener('click', deleteCourseEditor);
+  document.getElementById('btn-reset-timeline').addEventListener('click', resetTimeline);
+  document.getElementById('btn-add-to-plan').addEventListener('click', function () {
+    const sel = document.getElementById('add-course-select');
+    const gradeSel = document.getElementById('add-course-grade');
+    if (!sel.value) return;
+    moveCourse(sel.value, Number(gradeSel.value));
+  });
+
+  wireDropTarget(unscheduledList, null); 
+
+  restore();
+  rebuildCatalog();
+  pruneInvalidState();
+  buildCatalogList();
+  buildCompletedPicker();
+  syncFromHash();
+  render();
+})();
+</script>
+</body>
+</html>
